@@ -1,0 +1,108 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using WinFormsPM;
+
+namespace WinFormsPM
+{
+    public partial class Form2 : Form
+    {
+        Database database = new Database();
+
+        public Form2()
+        {
+            InitializeComponent();
+            StartPosition = FormStartPosition.CenterScreen;
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            // Код загрузки формы
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+            // Обработчик для label1
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var loginuser = textBox1.Text;
+            var passUser = textBox2.Text;
+            
+
+            // Проверяем, что все поля заполнены
+            if (string.IsNullOrWhiteSpace(loginuser) || string.IsNullOrWhiteSpace(passUser))
+            {
+                MessageBox.Show("Пожалуйста, заполните все поля!", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Проверяем, существует ли уже пользователь с таким логином
+            if (checkUser())
+            {
+                MessageBox.Show("Пользователь уже существует!");
+                return;
+            }
+
+            // Создаем запрос для добавления нового пользователя
+            string querystring = $"insert into register(login_user, password_user, fio, adres) values ('{loginuser}', '{passUser}', )";
+            SqlCommand command = new SqlCommand(querystring, database.GetSqlConnection());
+
+            // Открываем соединение и выполняем запрос
+            database.openConnection();
+            if (command.ExecuteNonQuery() == 1)
+            {
+                MessageBox.Show("Аккаунт успешно создан!", "Успех!");
+                Form1 form1 = new Form1();
+                this.Hide();
+                form1.ShowDialog();
+            }
+            else
+            {
+                MessageBox.Show("Не удалось создать аккаунт!");
+            }
+            database.closeConnection();
+        }
+
+        private Boolean checkUser()
+        {
+            var loginuser = textBox1.Text;
+
+            // Простой запрос для проверки, существует ли пользователь с таким логином
+            SqlDataAdapter adapter = new SqlDataAdapter();
+            DataTable table = new DataTable();
+            string querystring = $"select login_user from register where login_user = '{loginuser}'";
+
+            SqlCommand command = new SqlCommand(querystring, database.GetSqlConnection());
+            adapter.SelectCommand = command;
+            adapter.Fill(table);
+
+            // Если в таблице есть строки, значит, такой пользователь существует
+            return table.Rows.Count > 0;
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+            // Обработчик для textBox2
+        }
+
+     
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Form1 form1 = new Form1();
+            form1.Show();
+            this.Hide();
+        }
+    }
+}
