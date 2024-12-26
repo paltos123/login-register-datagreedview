@@ -1,0 +1,58 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+
+namespace WinFormsPM
+{
+    public partial class Form3 : Form
+    {
+        Database database = new Database();
+        
+
+        public Form3()
+        {
+            InitializeComponent();
+            
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+            string query = "SELECT * FROM monkey"; // Запрос для выборки данных из таблицы monkey
+
+            try
+            {
+                // Открываем подключение
+                database.openConnection();
+
+                // Создаем SqlDataAdapter для выполнения запроса
+                SqlDataAdapter dataAdapter = new SqlDataAdapter(query, database.GetSqlConnection());
+                DataTable dataTable = new DataTable();
+
+                // Заполняем DataTable данными
+                dataAdapter.Fill(dataTable);
+
+                // Привязываем данные к DataGridView
+                dataGridView1.DataSource = dataTable;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при получении данных: {ex.Message}", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Закрываем подключение после выполнения запроса
+                database.closeConnection();
+            }
+        }
+
+      
+    }
+}
